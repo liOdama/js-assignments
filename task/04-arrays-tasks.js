@@ -451,10 +451,9 @@ function sortCitiesArray(arr) {
  */
 function getIdentityMatrix(n) {
   const outside = Array(n).fill(0).map(c => c = Array(n).fill(0));
-  return outside.reduce((acc, curr, i) => {
+  return outside.map((curr, i) => {
     curr[i] = 1;
-    acc.push(curr);
-    return acc;}, []);
+    return curr;});
 }
 
 /**
@@ -523,9 +522,8 @@ function distinct(arr) {
 function group(array, keySelector, valueSelector) {
   const key = Array.from(new Set(array.map(keySelector)));
   const keys = Object.keys(array[0]); const map = new Map; 
-  const k1 = keys[0]; const k2 = keys[1];
-  key.map(c => { map.set(c, array.filter(b => b[k1] === c)
-    .map(obj =>obj[k2]));});
+  key.map(c =>{ map.set(c, array.filter(b => b[keys[0]] === c)
+    .map(valueSelector));});
   return map;
 }
 
