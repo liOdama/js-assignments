@@ -129,7 +129,11 @@ function isTriangle(a, b, c) {
  *
  */
 function doRectanglesOverlap(rect1, rect2) {
-  throw new Error('Not implemented');
+  if(rect1.top + rect1.height > rect2.top){
+    if(rect1.left + rect1.width > rect2.left) {
+      return true;
+    } else { return false;}
+  } return false;
 }
 
 
@@ -303,8 +307,8 @@ function isCreditCardNumber(ccn) {
  *   165536 (1+6+5+5+3+6 = 26,  2+6 = 8) => 8
  */
 function getDigitalRoot(num) {
-  const sum = `${num}`.split('').reduce((sum, c)=> sum +=+c, 0);
-  return `${sum}`.split('').reduce((sum, c)=> sum +=+c, 0);
+  const sum = numb => `${numb}`.split('').reduce((sum, c)=> sum +=+c, 0);
+  return sum(sum(num));
 }
 
 
@@ -384,31 +388,30 @@ function timespanToHumanString(startDate, endDate) { // TODO can be inproved
   const day= 864 * Math.pow(10, 5);
   const month= day * 30.4167;
   const year= month * 12;
-  if(difference > year * 1.5) {
+  switch (true) {
+  case difference > year * 1.5:
     return `${Math.round((difference - 1) / year) } years ago`;
-  }
-  if(difference > 864 * Math.pow(10, 5) * 30.4167 * 11.35) {
+  case difference > 864 * Math.pow(10, 5) * 30.4167 * 11.35:
     return 'a year ago';
+  case difference > month * 1.5:
+    return `${Math.round((difference - 1) / month) } months ago`; 
+  case difference > 216 * Math.pow(10, 7):
+    return `a month ago`;
+  case difference > (day * 1.5):
+    return `${Math.round((difference-1) / day)} days ago`;
+  case difference > (792 * Math.pow(10, 5)):
+    return `a day ago`;
+  case difference > hour * 1.5:
+    return `${Math.round((difference-1)  / hour)} hours ago`;
+  case difference > hour * 0.75:
+    return `an hour ago`;
+  case difference > minute * 1.5:
+    return `${Math.round((difference -1) / minute)} minutes ago`;
+  case difference > minute * 0.75:
+    return `a minute ago`;
+  default: 
+    return `a few seconds ago`;
   }
-  if( difference > month * 1.5){ 
-    return `${Math.round((difference - 1) / month) } months ago`;} 
-  if( difference > 216 * Math.pow(10, 7)){
-    return `a month ago`;}
-  if( difference > (day * 1.5) ){
-    return `${Math.round((difference-1) / day)} days ago`;}
-  if( difference > (792 * Math.pow(10, 5)) ){
-    return `a day ago`;}
-  if( difference > hour * 1.5){
-    return `${Math.round((difference-1)  / hour)} hours ago`;}
-  if( difference > hour * 0.75){
-    return `an hour ago`;}
-  if( difference > minute * 1.5){
-    return `${Math.round((difference -1) / minute)} minutes ago`;}
-  if( difference > minute * 0.75 ){
-    return `a minute ago`;}
-  else{
-    return `a few seconds ago`;}
-  
 }
 
 
@@ -486,7 +489,18 @@ function getCommonDirectoryPath(pathes) {
  *
  */
 function getMatrixProduct(m1, m2) {
-  throw new Error('Not implemented');
+  const result = [];
+  for(let c =0; c < m2.length; c +=1) {
+    if (m1[c] === undefined) { break;} 
+    else {
+      const cell = m2[c].map((curr, i) => {
+        return m2.reduce((sum, el, b) => {
+          return sum += m1[c][b] * m2[b][i];
+        }, 0);
+      });
+      result.push(cell);
+    }}
+  return result;
 }
 
 
@@ -521,7 +535,22 @@ function getMatrixProduct(m1, m2) {
  *
  */
 function evaluateTicTacToePosition(position) {
-  throw new Error('Not implemented');
+  for(let i = 0; i < position.length; i+=1){
+    const filter = (arr, pred) => arr.filter(curr => curr === pred);
+    const check = filter(position[i], position[i][0]);
+    if(check.length === 3) {
+      return check[0];
+    }
+    const buffer = filter([position[0][i], position[1][i], position[2][i]],
+      position[0][i]);
+    if(buffer.length === 3) {
+      return buffer[0];
+    }
+  }
+  if(position[1][1] === position[0][0] && position[1][1] === position[2][2] ||
+    position[1][1] === position[0][2] && position[1][1] === position[2][0]) {
+    return position[1][1];
+  } return undefined;
 }
 
 module.exports = {
