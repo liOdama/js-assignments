@@ -22,7 +22,9 @@
  *    console.log(r.getArea());   // => 200
  */
 function Rectangle(width, height) {
-  throw new Error('Not implemented');
+  this.width = width;
+  this.height = height;
+  Rectangle.prototype.getArea = () => width * height;
 }
 
 
@@ -37,7 +39,7 @@ function Rectangle(width, height) {
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
 function getJSON(obj) {
-  throw new Error('Not implemented');
+  return  JSON.stringify(obj);
 }
 
 
@@ -53,7 +55,7 @@ function getJSON(obj) {
  *
  */
 function fromJSON(proto, json) {
-  throw new Error('Not implemented');
+  return Object.setPrototypeOf(JSON.parse(json), proto);
 }
 
 
@@ -112,36 +114,132 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
-const cssSelectorBuilder = {
-
+class CreateSelector {
+  constructor (value, obj) {
+    this.value = value;
+    this.obj = obj;
+  }
+  
   element(value) {
-    throw new Error('Not implemented');
-  },
+    this.value = value;
+    if (this.obj === undefined) {
+      const newSelector = {result: this.value};
+      return new CreateSelector(null, newSelector);
+    } else {
+      switch (true) {
+      case this.obj.result.includes('table') === true && this.value === 'div':
+        throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+      default :
+        throw CreateSelector.prototype.throwWrongOrder;
+      } 
+    }
+  }
 
   id(value) {
-    throw new Error('Not implemented');
-  },
+    this.value = `#${value}`;
+    if (this.obj === undefined) {
+      const newSelector = {result: this.value};
+      return new CreateSelector(null, newSelector);
+    } else {
+      switch (true) {
+      case this.obj.result.includes('#') === true:
+        throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+      case this.obj.result.includes('.') === true ||
+      this.obj.result.includes('[') === true ||
+      this.obj.result.includes(':') === true :
+        throw CreateSelector.prototype.throwWrongOrder;
+      default:
+        this.obj.result += this.value;
+        return new CreateSelector(null, this.obj); 
+      }
+    }
+  }
 
   class(value) {
-    throw new Error('Not implemented');
-  },
+    this.value = `.${value}`;
+    if (this.obj === undefined) {
+      const newSelector = {result: this.value};
+      return new CreateSelector(null, newSelector);
+    } else {
+      switch (true) {
+      case 
+        this.obj.result.includes('[') === true ||
+        this.obj.result.includes(':') === true :
+        throw CreateSelector.prototype.throwWrongOrder;
+      default:
+        this.obj.result += this.value;
+        return new CreateSelector(null, this.obj); 
+      }
+    }
+  }
 
   attr(value) {
-    throw new Error('Not implemented');
-  },
+    this.value = `[${value}]`;
+    if (this.obj === undefined) {
+      const newSelector = {result: this.value};
+      return new CreateSelector(null, newSelector);
+    } else {
+      switch (true) {
+      case this.obj.result.includes(':') === true :
+        throw CreateSelector.prototype.throwWrongOrder;
+      default:
+        this.obj.result += this.value;
+        return new CreateSelector(null, this.obj); 
+      }
+    }
+  }
 
   pseudoClass(value) {
-    throw new Error('Not implemented');
-  },
+    this.value = `:${value}`;
+    if (this.obj === undefined) {
+      const newSelector = {result: this.value};
+      return new CreateSelector(null, newSelector);
+    } else {
+      switch (true) {
+      case 
+        this.obj.result.includes('::') === true :
+        throw CreateSelector.prototype.throwWrongOrder;
+      default:
+        this.obj.result += this.value;
+        return new CreateSelector(null, this.obj); 
+      }
+    }
+  }
 
   pseudoElement(value) {
-    throw new Error('Not implemented');
-  },
+    this.value = `::${value}`;
+    if (this.obj === undefined) {
+      const newSelector = {result: this.value};
+      return new CreateSelector(null, newSelector);
+    } else {
+      switch (true) {
+      case this.obj.result.includes('::') === true:
+        throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+      default:
+        this.obj.result += this.value;
+        return new CreateSelector(null, this.obj);
+      }
+      
+    }
+  }
 
   combine(selector1, combinator, selector2) {
-    throw new Error('Not implemented');
+    const selector = 
+    {result: selector1.obj.result + ` ${combinator} ` + selector2.obj.result};
+    return new CreateSelector(null, selector);
   }
-};
+  stringify() {
+    return this.obj.result;
+  }
+}
+CreateSelector.prototype.throwSelectorMoreOneTimes =
+ 'Element, id and pseudo-element should not'+
+ ' occur more then one time inside the selector';
+CreateSelector.prototype.throwWrongOrder = 
+ 'Selector parts should be arranged in the following order:'+
+ ' element, id, class, attribute, pseudo-class, pseudo-element';
+
+const cssSelectorBuilder = new CreateSelector();
 
 module.exports = {
   Rectangle: Rectangle,
