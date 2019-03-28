@@ -29,13 +29,12 @@
  *
  */
 function getFizzBuzz(num) {
-  if(num % 3 === 0 && num % 5 === 0) {
-    return 'FizzBuzz';
-  } else if (num % 3 === 0) {
-    return 'Fizz';
-  } else if (num % 5 === 0) {
-    return 'Buzz';}
-  return num;
+  switch(true) {
+  case num % 3 === 0 && num % 5 === 0: return 'FizzBuzz';
+  case num % 3 === 0: return 'Fizz';
+  case num % 5 === 0: return 'Buzz';
+  default: return num;
+  }
 }
 
 
@@ -92,7 +91,9 @@ function getSumBetweenNumbers(n1, n2) {
  *   10,10,10 =>  true
  */
 function isTriangle(a, b, c) {
-  return (a+b > c && a+c > b && b+c > a && c+a > b && b+c > a) ? true : false;
+  const sides = [].sort.call(arguments, (a, b) => (a < b) ? -1 : 1);
+  if (sides[0]+ sides[1] > sides[2]) { return true; }
+  return false;
 }
 
 
@@ -132,7 +133,7 @@ function doRectanglesOverlap(rect1, rect2) {
   if(rect1.top + rect1.height > rect2.top){
     if(rect1.left + rect1.width > rect2.left) {
       return true;
-    } else { return false;}
+    }
   } return false;
 }
 
@@ -163,9 +164,9 @@ function doRectanglesOverlap(rect1, rect2) {
  *   { center: { x:0, y:0 }, radius:10 },  { x:10, y:10 }   => false
  *
  */
-function isInsideCircle(circle, point) {
-  return (Math.hypot(circle.center.x - point.x) +
-   Math.hypot(circle.center.y - point.y) < circle.radius)? true : false ;
+function isInsideCircle(c, p) {
+  if(Math.hypot((c.center.x - p.x)+ (c.center.y - p.y))< c.radius){return true;}
+  return false ;
 }
 
 
@@ -181,13 +182,13 @@ function isInsideCircle(circle, point) {
  *   'entente' => null
  */
 function findFirstSingleChar(str) {
-  const tempArray = str.split(''); const double = [];
-  const result = tempArray.reduce((acc, curr) => {
-    if (acc.includes(curr) === true){
-      acc.splice(acc.indexOf(curr), 1); double.push(curr);} 
-    else if(double.includes(curr)=== false){ acc.push(curr);
-    } return acc;}, []);  return (result.length === 0) ? null : result[0];
-}
+  for(let i = 0; i < str.length; i+=1) {
+    for(let b = i+1; b < str.length; b+=1) {
+      if(str[i]===str[b]) {
+        str = str.replace(new RegExp(`[${str[i]}]`, `g`), ''); i-=1; break;}
+    }} 
+  return (str !== '') ? str.charAt(0) : null;
+} 
 
 
 /**
@@ -213,7 +214,7 @@ function findFirstSingleChar(str) {
  *
  */
 function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
-  const tempArray = [a, b].sort((a, b) => a - b).join(', ');
+  const tempArray = [a, b].sort((a, b) => (a < b) ? -1 : 1).join(', ');
   if(isStartIncluded === true && isEndIncluded === true) {
     return `[${tempArray}]`;}
   else if (isStartIncluded === true) { return `[${tempArray})`;}
@@ -334,19 +335,12 @@ function getDigitalRoot(num) {
  *   '{[(<{[]}>)]}' = true
  */
 function isBracketsBalanced(str) {
-  const result = str.split('').reduce((stack, curr) => {
-    if(stack[stack.length - 1] === '[' && curr ===']'){
-      stack.pop(); return stack;
-    } else if (stack[stack.length - 1] === '(' && curr ===')') {
-      stack.pop(); return stack;
-    } else if (stack[stack.length - 1] === '<' && curr ==='>') {
-      stack.pop(); return stack;
-    } else if (stack[stack.length - 1] === '{' && curr ==='}') {
-      stack.pop(); return stack;
-    } else {
-      stack.push(curr); return stack;
-    }}, []);
-  return (result.length === 0) ? true : false;
+  let result = str;
+  while(result.match(/{}|\[\]|\(\)|<>/)) {
+    result = result.replace(/{}|\[\]|\(\)|<>/g, '');
+  }
+  if(result.length === 0) {return true;}
+  return false;
 }
 
 
@@ -492,14 +486,13 @@ function getMatrixProduct(m1, m2) {
   const result = [];
   for(let c =0; c < m2.length; c +=1) {
     if (m1[c] === undefined) { break;} 
-    else {
-      const cell = m2[c].map((curr, i) => {
-        return m2.reduce((sum, el, b) => {
-          return sum += m1[c][b] * m2[b][i];
-        }, 0);
-      });
-      result.push(cell);
-    }}
+    const cell = m2[c].map((curr, i) => {
+      return m2.reduce((sum, el, b) => {
+        return sum += m1[c][b] * m2[b][i];
+      }, 0);
+    });
+    result.push(cell);
+  }
   return result;
 }
 
