@@ -120,113 +120,168 @@ class CreateSelector {
     this.obj = obj;
   }
   
+  checkOneMoreTime(value, check) {
+    const selector = value.split('');
+    switch(true) {
+    case selector.filter(c => c === '#').length > 1:
+      throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+    case value.includes('::'):
+      throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+    case check !== undefined:
+      throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+    default:
+      break;
+    }
+  }
+
+  checkOrder(value, check) {
+    value = value.split('');
+    let wrongOrder = [];
+    switch(check) {
+    case 'element':
+      wrongOrder = value.filter(c => {
+        if(c === '#') {return true;}
+        if(c === '.') {return true;}
+        if(c === '[') {return true;}
+        if(c === ':') {return true;}
+        return false;
+      });
+      break;
+    case '#':
+      wrongOrder = value.filter(c => {
+        if(c === '.') {return true;}
+        if(c === '[') {return true;}
+        if(c === ':') {return true;}
+        return false;
+      });
+      break;
+    case '.':
+      wrongOrder = value.filter(c => {
+        if(c === '[') {return true;}
+        if(c === ':') {return true;}
+        return false;
+      });
+      break;
+    case '[':
+      wrongOrder = value.filter(c => {
+        if(c === ':') {return true;}
+        return false;
+      });
+      break;
+    case ':':
+      if(value.join('').includes('::') === true) {
+        throw CreateSelector.prototype.throwWrongOrder;
+      }
+      break;
+    default:
+      break;
+    }
+    if(wrongOrder.length > 0){throw CreateSelector.prototype.throwWrongOrder;}
+  }
   element(value) {
     this.value = value;
     if (this.obj === undefined) {
-      const newSelector = {result: this.value};
-      return new CreateSelector(null, newSelector);
+      
+      const a = {};
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.value};
+      return a;
     } else {
-      switch (true) {
-      case this.obj.result.includes('table') === true && this.value === 'div':
-        throw CreateSelector.prototype.throwSelectorMoreOneTimes;
-      default :
-        throw CreateSelector.prototype.throwWrongOrder;
-      } 
+      this.checkOrder(this.obj.result, 'element');
+      this.checkOneMoreTime(this.obj.result, this.value);
     }
   }
 
   id(value) {
     this.value = `#${value}`;
+    const a = {};
     if (this.obj === undefined) {
-      const newSelector = {result: this.value};
-      return new CreateSelector(null, newSelector);
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.value};
+      return a;
     } else {
-      switch (true) {
-      case this.obj.result.includes('#') === true:
-        throw CreateSelector.prototype.throwSelectorMoreOneTimes;
-      case this.obj.result.includes('.') === true ||
-      this.obj.result.includes('[') === true ||
-      this.obj.result.includes(':') === true :
-        throw CreateSelector.prototype.throwWrongOrder;
-      default:
-        this.obj.result += this.value;
-        return new CreateSelector(null, this.obj); 
-      }
+      this.obj.result += this.value;
+      this.checkOrder(this.obj.result, '#');
+      this.checkOneMoreTime(this.obj.result); 
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.obj.result};
+      return a; 
     }
   }
 
   class(value) {
+    const a = {};
     this.value = `.${value}`;
     if (this.obj === undefined) {
-      const newSelector = {result: this.value};
-      return new CreateSelector(null, newSelector);
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.value};
+      return a;
     } else {
-      switch (true) {
-      case 
-        this.obj.result.includes('[') === true ||
-        this.obj.result.includes(':') === true :
-        throw CreateSelector.prototype.throwWrongOrder;
-      default:
-        this.obj.result += this.value;
-        return new CreateSelector(null, this.obj); 
-      }
+      this.obj.result += this.value;
+      this.checkOrder(this.obj.result, '.');
+      this.checkOneMoreTime(this.obj.result);
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.obj.result};
+      return a;  
     }
   }
 
   attr(value) {
+    const a = {};
     this.value = `[${value}]`;
     if (this.obj === undefined) {
-      const newSelector = {result: this.value};
-      return new CreateSelector(null, newSelector);
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.value};
+      return a;
     } else {
-      switch (true) {
-      case this.obj.result.includes(':') === true :
-        throw CreateSelector.prototype.throwWrongOrder;
-      default:
-        this.obj.result += this.value;
-        return new CreateSelector(null, this.obj); 
-      }
+      this.obj.result += this.value;
+      this.checkOrder(this.obj.result, '[');
+      this.checkOneMoreTime(this.obj.result);
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.obj.result};
+      return a; 
     }
   }
 
   pseudoClass(value) {
+    const a = {};
     this.value = `:${value}`;
     if (this.obj === undefined) {
-      const newSelector = {result: this.value};
-      return new CreateSelector(null, newSelector);
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.value};
+      return a;
     } else {
-      switch (true) {
-      case 
-        this.obj.result.includes('::') === true :
-        throw CreateSelector.prototype.throwWrongOrder;
-      default:
-        this.obj.result += this.value;
-        return new CreateSelector(null, this.obj); 
-      }
+      this.obj.result += this.value;
+      this.checkOrder(this.obj.result, ':');
+      this.checkOneMoreTime(this.obj.result);
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.obj.result};
+      return a; 
     }
   }
 
   pseudoElement(value) {
+    const a = {};
     this.value = `::${value}`;
     if (this.obj === undefined) {
-      const newSelector = {result: this.value};
-      return new CreateSelector(null, newSelector);
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.value};
+      return a;
     } else {
-      switch (true) {
-      case this.obj.result.includes('::') === true:
-        throw CreateSelector.prototype.throwSelectorMoreOneTimes;
-      default:
-        this.obj.result += this.value;
-        return new CreateSelector(null, this.obj);
-      }
-      
+      this.checkOneMoreTime(this.obj.result);
+      this.obj.result += this.value;
+      a.__proto__ = CreateSelector.prototype;
+      a.obj = {result: this.obj.result};
+      return a; 
     }
   }
 
   combine(selector1, combinator, selector2) {
-    const selector = 
+    const a = {};
+    a.__proto__ = CreateSelector.prototype;
+    a.obj = 
     {result: selector1.obj.result + ` ${combinator} ` + selector2.obj.result};
-    return new CreateSelector(null, selector);
+    return a;
   }
   stringify() {
     return this.obj.result;
