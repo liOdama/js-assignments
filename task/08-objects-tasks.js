@@ -22,7 +22,9 @@
  *    console.log(r.getArea());   // => 200
  */
 function Rectangle(width, height) {
-  throw new Error('Not implemented');
+  this.width = width;
+  this.height = height;
+  Rectangle.prototype.getArea = () => width * height;
 }
 
 
@@ -37,7 +39,7 @@ function Rectangle(width, height) {
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
 function getJSON(obj) {
-  throw new Error('Not implemented');
+  return  JSON.stringify(obj);
 }
 
 
@@ -53,7 +55,7 @@ function getJSON(obj) {
  *
  */
 function fromJSON(proto, json) {
-  throw new Error('Not implemented');
+  return Object.setPrototypeOf(JSON.parse(json), proto);
 }
 
 
@@ -112,36 +114,173 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
-const cssSelectorBuilder = {
+class CreateSelector {
+  constructor (value, obj) {
+    this.value = value;
+    this.result = obj;
+  }
+  
+  checkOneMoreTime(value, check) {
+    const selector = value.split('');
+    switch(true) {
+    case selector.filter(c => c === '#').length > 1:
+      throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+    case value.includes('::'):
+      throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+    case check !== undefined:
+      throw CreateSelector.prototype.throwSelectorMoreOneTimes;
+    default:
+      break;
+    }
+    
+  }
 
+  checkOrder(value, check) {
+    value = value.split('');
+    let wrongOrder = [];
+    let storeSelectors = ['#', '.', '[', ':' ];
+    switch(check) {
+    case 'element':
+      wrongOrder = value.filter(c => {
+        return storeSelectors.some(curr => c === curr);
+      });
+      break;
+    case '#':
+      storeSelectors = storeSelectors.slice(1);
+      wrongOrder = value.filter(c => {
+        return storeSelectors.some(curr => c === curr);
+      });
+      break;
+    case '.':
+      storeSelectors = storeSelectors.slice(2);
+      wrongOrder = value.filter(c => {
+        return storeSelectors.some(curr => c === curr);
+      });
+      break;
+    case '[':
+      storeSelectors = [storeSelectors.pop()];
+      wrongOrder = value.filter(c => {
+        return storeSelectors.some(curr => c === curr);
+      });
+      break;
+    case ':':
+      if(value.join('').includes('::') === true) {
+        throw CreateSelector.prototype.throwWrongOrder;
+      }
+      break;
+    default:
+      break;
+    }
+    if(wrongOrder.length > 0){throw CreateSelector.prototype.throwWrongOrder;}
+  }
   element(value) {
-    throw new Error('Not implemented');
-  },
+    this.value = value;
+    if (this.result === undefined) {
+      const temp = 
+      Object.create(CreateSelector.prototype, 
+        {result: {writable:true, value:[this.value]}});
+      return temp;
+    }
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, 'element');
+    this.checkOneMoreTime(resultForCheck, this.value);
+  }
 
   id(value) {
-    throw new Error('Not implemented');
-  },
+    this.value = `#${value}`;
+    const temp = Object.create(CreateSelector.prototype);
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    } 
+    this.result.push(this.value);
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, '#');
+    this.checkOneMoreTime(resultForCheck); 
+    temp.result = this.result;
+    return temp;
+    
+  }
 
   class(value) {
-    throw new Error('Not implemented');
-  },
+    const temp = Object.create(CreateSelector.prototype);
+    this.value = `.${value}`;
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    } 
+    this.result.push(this.value);
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, '.');
+    temp.result = this.result;
+    return temp; 
+    
+  }
 
   attr(value) {
-    throw new Error('Not implemented');
-  },
+    const temp = Object.create(CreateSelector.prototype);
+    this.value = `[${value}]`;
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    } 
+    this.result.push(this.value);
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, '[');
+    temp.result = this.result;
+    return temp;
+    
+  }
 
   pseudoClass(value) {
-    throw new Error('Not implemented');
-  },
+    const temp = Object.create(CreateSelector.prototype);
+    this.value = `:${value}`;
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    } 
+    this.result.push(this.value);
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, ':');
+    temp.result = this.result;
+    return temp; 
+    
+  }
 
   pseudoElement(value) {
-    throw new Error('Not implemented');
-  },
+    const temp = Object.create(CreateSelector.prototype);
+    this.value = `::${value}`;
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    }
+    const resultForCheck = this.result.join(''); 
+    this.checkOneMoreTime(resultForCheck);
+    this.result.push(this.value);
+    temp.result = this.result;
+    return temp; 
+    
+  }
 
   combine(selector1, combinator, selector2) {
-    throw new Error('Not implemented');
+    const temp = 
+      Object.create(CreateSelector.prototype,
+        {result: {writable:true, value: [...selector1.result,
+          ` ${combinator} `, ...selector2.result]}});
+    return temp;
   }
-};
+  stringify() {
+    return this.result.join('');
+  }
+}
+CreateSelector.prototype.throwSelectorMoreOneTimes =
+ 'Element, id and pseudo-element should not'+
+ ' occur more then one time inside the selector';
+CreateSelector.prototype.throwWrongOrder = 
+ 'Selector parts should be arranged in the following order:'+
+ ' element, id, class, attribute, pseudo-class, pseudo-element';
+
+const cssSelectorBuilder = new CreateSelector();
 
 module.exports = {
   Rectangle: Rectangle,

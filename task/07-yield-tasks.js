@@ -32,7 +32,20 @@
  *
  */
 function* get99BottlesOfBeer() {
-  throw new Error('Not implemented');
+  let line = 98;
+  yield `99 bottles of beer on the wall, 99 bottles of beer.`;
+  while (line > 1) {
+    yield `Take one down and pass it around,`+
+    ` ${line} bottles of beer on the wall.`;
+    yield `${line} bottles of beer on the wall, ${line} bottles of beer.`;
+    line -= 1;
+  }
+  yield `Take one down and pass it around, ${line} bottle of beer on the wall.`;
+  yield `${line} bottle of beer on the wall, ${line} bottle of beer.`;
+  yield 'Take one down and pass it around,'+
+  ' no more bottles of beer on the wall.';
+  yield 'No more bottles of beer on the wall, no more bottles of beer.';
+  yield 'Go to the store and buy some more, 99 bottles of beer on the wall.';
 }
 
 
@@ -46,7 +59,17 @@ function* get99BottlesOfBeer() {
  *
  */
 function* getFibonacciSequence() {
-  throw new Error('Not implemented');
+  yield 0;
+  yield 1;
+  let first = 1;
+  let now = 1;
+  let past = 0;
+  while (true) {
+    yield now;
+    past = first;
+    first = now;
+    now = first + past;
+  }
 }
 
 
@@ -80,8 +103,41 @@ function* getFibonacciSequence() {
  *  depthTraversalTree(node1) => node1, node2, node3, node4, node5, node6, node7, node8
  *
  */
+
 function* depthTraversalTree(root) {
-  throw new Error('Not implemented');
+  yield root;
+  const rootLength = root.children.length;
+  for(let i = 0; i < rootLength; i+=1) {
+    const a = root.children[i];
+    yield a;
+    if(a.children !== undefined) {
+      const stack = [a.children ];
+      while(stack.length > 0) {
+        const lastInStack = stack[stack.length - 1];
+        const el = lastInStack[0];
+        const elChildren = el.children;
+        switch(true) {
+        case elChildren !== undefined:
+          if(elChildren.length === 1) {stack.pop();}
+          stack.push(elChildren);
+          yield el;
+          break;
+        case elChildren === undefined:
+          yield el;
+          stack[stack.length - 1] = lastInStack.slice(1);
+          if(stack[stack.length - 1].length === 0) {
+            stack.pop();
+            if(stack.length > 0 && stack[stack.length - 1].length === 1) {
+              stack.pop();
+            }
+          }
+          break;
+        default:
+          break;
+        }
+      }
+    }
+  }
 }
 
 
@@ -107,7 +163,18 @@ function* depthTraversalTree(root) {
  *
  */
 function* breadthTraversalTree(root) {
-  throw new Error('Not implemented');
+  yield root;
+  const stack = root.children;
+
+  for(let i =0; i < stack.length; i+=1) {
+    const el = stack[i];
+    yield el;
+    if(el.children !== undefined) {
+      el.children.forEach(element => {
+        stack.push(element);
+      });
+    } 
+  }
 }
 
 
@@ -125,7 +192,28 @@ function* breadthTraversalTree(root) {
  *   [ 1, 3, 5, ... ], [ -1 ] => [ -1, 1, 3, 5, ...]
  */
 function* mergeSortedSequences(source1, source2) {
-  throw new Error('Not implemented');
+  const odd = source1();
+  const even = source2();
+  while(true) {
+    const oddNumber = odd.next().value;
+    const evenNumber = even.next().value;
+    switch (true) {
+    case evenNumber < oddNumber:
+      yield evenNumber;
+      yield oddNumber;
+      break;
+    case evenNumber === undefined:
+      yield oddNumber;
+      break;
+    case oddNumber === undefined:
+      yield evenNumber;
+      break;
+    default:
+      yield oddNumber;
+      yield evenNumber;
+      break;
+    }
+  }
 }
 
 module.exports = {
