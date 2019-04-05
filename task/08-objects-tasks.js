@@ -117,7 +117,7 @@ function fromJSON(proto, json) {
 class CreateSelector {
   constructor (value, obj) {
     this.value = value;
-    this.obj = obj;
+    this.result = obj;
   }
   
   checkOneMoreTime(value, check) {
@@ -132,40 +132,35 @@ class CreateSelector {
     default:
       break;
     }
+    
   }
 
   checkOrder(value, check) {
     value = value.split('');
     let wrongOrder = [];
+    let storeSelectors = ['#', '.', '[', ':' ];
     switch(check) {
     case 'element':
       wrongOrder = value.filter(c => {
-        if(c === '#') {return true;}
-        if(c === '.') {return true;}
-        if(c === '[') {return true;}
-        if(c === ':') {return true;}
-        return false;
+        return storeSelectors.some(curr => c === curr);
       });
       break;
     case '#':
+      storeSelectors = storeSelectors.slice(1);
       wrongOrder = value.filter(c => {
-        if(c === '.') {return true;}
-        if(c === '[') {return true;}
-        if(c === ':') {return true;}
-        return false;
+        return storeSelectors.some(curr => c === curr);
       });
       break;
     case '.':
+      storeSelectors = storeSelectors.slice(2);
       wrongOrder = value.filter(c => {
-        if(c === '[') {return true;}
-        if(c === ':') {return true;}
-        return false;
+        return storeSelectors.some(curr => c === curr);
       });
       break;
     case '[':
+      storeSelectors = [storeSelectors.pop()];
       wrongOrder = value.filter(c => {
-        if(c === ':') {return true;}
-        return false;
+        return storeSelectors.some(curr => c === curr);
       });
       break;
     case ':':
@@ -180,111 +175,102 @@ class CreateSelector {
   }
   element(value) {
     this.value = value;
-    if (this.obj === undefined) {
-      
-      const a = {};
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.value};
-      return a;
-    } else {
-      this.checkOrder(this.obj.result, 'element');
-      this.checkOneMoreTime(this.obj.result, this.value);
+    if (this.result === undefined) {
+      const temp = 
+      Object.create(CreateSelector.prototype, 
+        {result: {writable:true, value:[this.value]}});
+      return temp;
     }
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, 'element');
+    this.checkOneMoreTime(resultForCheck, this.value);
   }
 
   id(value) {
     this.value = `#${value}`;
-    const a = {};
-    if (this.obj === undefined) {
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.value};
-      return a;
-    } else {
-      this.obj.result += this.value;
-      this.checkOrder(this.obj.result, '#');
-      this.checkOneMoreTime(this.obj.result); 
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.obj.result};
-      return a; 
-    }
+    const temp = Object.create(CreateSelector.prototype);
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    } 
+    this.result.push(this.value);
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, '#');
+    this.checkOneMoreTime(resultForCheck); 
+    temp.result = this.result;
+    return temp;
+    
   }
 
   class(value) {
-    const a = {};
+    const temp = Object.create(CreateSelector.prototype);
     this.value = `.${value}`;
-    if (this.obj === undefined) {
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.value};
-      return a;
-    } else {
-      this.obj.result += this.value;
-      this.checkOrder(this.obj.result, '.');
-      this.checkOneMoreTime(this.obj.result);
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.obj.result};
-      return a;  
-    }
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    } 
+    this.result.push(this.value);
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, '.');
+    temp.result = this.result;
+    return temp; 
+    
   }
 
   attr(value) {
-    const a = {};
+    const temp = Object.create(CreateSelector.prototype);
     this.value = `[${value}]`;
-    if (this.obj === undefined) {
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.value};
-      return a;
-    } else {
-      this.obj.result += this.value;
-      this.checkOrder(this.obj.result, '[');
-      this.checkOneMoreTime(this.obj.result);
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.obj.result};
-      return a; 
-    }
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    } 
+    this.result.push(this.value);
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, '[');
+    temp.result = this.result;
+    return temp;
+    
   }
 
   pseudoClass(value) {
-    const a = {};
+    const temp = Object.create(CreateSelector.prototype);
     this.value = `:${value}`;
-    if (this.obj === undefined) {
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.value};
-      return a;
-    } else {
-      this.obj.result += this.value;
-      this.checkOrder(this.obj.result, ':');
-      this.checkOneMoreTime(this.obj.result);
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.obj.result};
-      return a; 
-    }
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
+    } 
+    this.result.push(this.value);
+    const resultForCheck = this.result.join('');
+    this.checkOrder(resultForCheck, ':');
+    temp.result = this.result;
+    return temp; 
+    
   }
 
   pseudoElement(value) {
-    const a = {};
+    const temp = Object.create(CreateSelector.prototype);
     this.value = `::${value}`;
-    if (this.obj === undefined) {
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.value};
-      return a;
-    } else {
-      this.checkOneMoreTime(this.obj.result);
-      this.obj.result += this.value;
-      a.__proto__ = CreateSelector.prototype;
-      a.obj = {result: this.obj.result};
-      return a; 
+    if (this.result === undefined) {
+      temp.result = [this.value];
+      return temp;
     }
+    const resultForCheck = this.result.join(''); 
+    this.checkOneMoreTime(resultForCheck);
+    this.result.push(this.value);
+    temp.result = this.result;
+    return temp; 
+    
   }
 
   combine(selector1, combinator, selector2) {
-    const a = {};
-    a.__proto__ = CreateSelector.prototype;
-    a.obj = 
-    {result: selector1.obj.result + ` ${combinator} ` + selector2.obj.result};
-    return a;
+    const temp = 
+      Object.create(CreateSelector.prototype,
+        {result: {writable:true, value: [...selector1.result,
+          ` ${combinator} `, ...selector2.result]}});
+    return temp;
   }
   stringify() {
-    return this.obj.result;
+    return this.result.join('');
   }
 }
 CreateSelector.prototype.throwSelectorMoreOneTimes =
